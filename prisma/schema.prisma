@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String
+  lastName    String
+  email       String       @unique
+  birthday    DateTime
+  location    String //e.g: 'America/New_York', 'Australia/Melbourne', 'Asia/Jakarta'
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  messageLogs MessageLog[] // A user can have multiple message logs over years
+}
+
+model MessageLog {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  user          User      @relation(fields: [userId], references: [id])
+  // To uniquely identify a birthday message for a specific day
+  birthdayMonth Int
+  birthdayDay   Int
+  // To track the specific year the message was attempted for
+  birthdayYear  Int
+  status        String // 'PENDING', 'SENT', 'FAILED'
+  sentAt        DateTime? // Timestamp of successful send
+  lastAttemptAt DateTime? // Timestamp of the last attempt (successful or not)
+  attemptCount  Int       @default(0) // How many times we've tried to send
+  errorMessage  String? // Store error details if status is 'FAILED'
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
