@@ -9,7 +9,7 @@ export class BirthdayScheduler implements OnModuleInit {
   constructor(private birthdayService: BirthdayService) {}
 
   // Run the main processing logic every hour
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_HOUR)
   async handleCron() {
     this.logger.debug("Hourly cron job triggered: Checking for birthdays...");
     await this.birthdayService.processBirthdayMessages();
